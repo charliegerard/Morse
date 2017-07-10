@@ -18,7 +18,6 @@ import android.widget.ImageButton;
 
 public class MainActivity extends AppCompatActivity {
     public static final int CAMERA_PERMISSION_REQUEST_CODE = 8675309;
-    //    public static final String EXTRA_MESSAGE = "com.example.morse.MESSAGE";
 
     ImageButton imageButton;
     Camera camera;
@@ -42,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     {
 
         if(checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
-            startFlash();
+            this.startFlash();
         } else {
             String[] permissionRequest = {Manifest.permission.CAMERA};
             requestPermissions(permissionRequest, CAMERA_PERMISSION_REQUEST_CODE);
@@ -52,14 +51,6 @@ public class MainActivity extends AppCompatActivity {
 //        if(getApplicationContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)){
 //            camera = Camera.open();
 //            parameters = camera.getParameters();
-////            camera = null;
-////            try{
-////                camera = Camera.open();
-////                parameters = camera.getParameters();
-////            }
-////            catch(Exception e){
-////                Log.d("here", "camera not working");
-////            }
 //
 //            isFlash = true;
 //
@@ -108,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(requestCode == CAMERA_PERMISSION_REQUEST_CODE){
             if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                startFlash();
+                this.startFlash();
             }
         }
     }
@@ -116,6 +107,14 @@ public class MainActivity extends AppCompatActivity {
     private void startFlash() {
             camera = Camera.open();
             parameters = camera.getParameters();
+//            camera = null;
+//            try{
+//                camera = Camera.open();
+//                parameters = camera.getParameters();
+//            }
+//            catch(Exception e){
+//                Log.d("here", "camera not working");
+//            }
 
             isFlash = true;
 
@@ -123,13 +122,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 if(isFlash){
+
                     if(!isOn){
+
 //                        imageButton.setImageResource(R.id.imageButton3);
                         parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
                         camera.setParameters(parameters);
                         camera.startPreview();
                         isOn = true;
                     } else {
+
 //                        imageButton.setImageResource(R.id.imageButton2);
                         parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
                         camera.setParameters(parameters);
@@ -168,11 +170,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    public void logText(String message){
-//        Log.d("there", message);
-//        //TO DO:
-//        // Translate message to morse code.
-//        // Test to turn on flashlight.
-//        // Turn on flashlight for 1 word.
-//    }
+    public void logText(String message){
+        Log.d("there", message);
+        //TO DO:
+        // Translate message to morse code.
+        // Test to turn on flashlight.
+        // Turn on flashlight for 1 word.
+    }
 }
