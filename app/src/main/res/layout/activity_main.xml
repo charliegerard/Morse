@@ -18,28 +18,17 @@
         tools:layout_editor_absoluteY="0dp"
         tools:layout_editor_absoluteX="16dp" />
 
-    <ImageButton
-        android:id="@+id/imageButton3"
+    <Button
+        android:id="@+id/switchBtn"
         android:layout_width="261dp"
         android:layout_height="115dp"
+        android:background="@drawable/off"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:drawable/button_onoff_indicator_on"
         tools:layout_editor_absoluteX="-22dp"
         tools:layout_editor_absoluteY="228dp" />
 
-    <ImageButton
-        android:id="@+id/imageButton2"
-        android:layout_width="266dp"
-        android:layout_height="142dp"
-        android:layout_centerVertical="true"
-        android:scaleType="fitCenter"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:drawable/button_onoff_indicator_off" />
 
 </android.support.constraint.ConstraintLayout>

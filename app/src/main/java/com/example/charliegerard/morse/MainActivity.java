@@ -3,6 +3,7 @@ package com.example.charliegerard.morse;
 import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import butterknife.BindView;
@@ -12,10 +13,10 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
-    @BindView(R.id.imageButton2) ImageView toggleBtnOff;
-    @BindView(R.id.imageButton3) ImageView toggleBtnOn;
+    @BindView(R.id.switchBtn) Button toggleBtnOff;
 
     private MyCameraImpl cameraImpl;
+    public static boolean isFlashlightOn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,9 +30,17 @@ public class MainActivity extends AppCompatActivity {
         cameraImpl.enableFlashlight();
     }
 
-    @OnClick(R.id.imageButton2)
+    @OnClick(R.id.switchBtn)
     public void toggleFlashlight(){
-        cameraImpl.toggleFlashlight(true);
+        isFlashlightOn = !isFlashlightOn;
+        cameraImpl.toggleFlashlight(isFlashlightOn);
+
+        if(isFlashlightOn){
+            toggleBtnOff.setBackgroundResource(R.drawable.on);
+        } else {
+            toggleBtnOff.setBackgroundResource(R.drawable.off);
+        }
+
     }
 
     @Override
