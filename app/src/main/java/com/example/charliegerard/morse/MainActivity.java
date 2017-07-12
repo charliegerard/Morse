@@ -89,14 +89,14 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.translateBtn)
     public void translate(){
-        // At the moment, only working with messages made of 1 word.
-
         new Thread(morse).start();
     }
 
     private Runnable morse = new Runnable(){
 
-        public void mapMessageToMorse(){
+        private void mapMessageToMorse(){
+            // At the moment, only working with messages made of 1 word.
+
             String message = inputField.getText().toString();
 
             //Probably could be refactored;
@@ -115,33 +115,27 @@ public class MainActivity extends AppCompatActivity {
 
                         if(singleCharacterInMorseValue.equals("-")){
 
-                            try{
-                                cameraImpl.toggleFlashlight(true);
-                                Thread.sleep(dashUnitDuration);
-                            } catch(InterruptedException e){
-                                Log.e("Err", "Interruption exception " + e.getMessage());
-                            }
+                            executeMorseLights(dashUnitDuration, true);
 
                         } else if(singleCharacterInMorseValue.equals(".")){
 
-                            try{
-                                cameraImpl.toggleFlashlight(true);
-                                Thread.sleep(dotUnitDuration);
-                            } catch(InterruptedException e){
-                                Log.e("Err", "Interruption exception " + e.getMessage());
-                            }
+                            executeMorseLights(dotUnitDuration, true);
 
                         } else if(singleCharacterInMorseValue.equals(" ")){
-
-                            try{
-                                cameraImpl.toggleFlashlight(false);
-                                Thread.sleep(gapInCharacter);
-                            } catch(InterruptedException e){
-                                Log.e("Err", "Interruption exception " + e.getMessage());
-                            }
+                            executeMorseLights(gapInCharacter, false);
                         }
+
                     }
                 }
+            }
+        }
+
+        private void executeMorseLights(int duration, boolean state){
+            try{
+                cameraImpl.toggleFlashlight(state);
+                Thread.sleep(duration);
+            } catch(InterruptedException e){
+                Log.e("Err", "Interruption exception " + e.getMessage());
             }
         }
 
