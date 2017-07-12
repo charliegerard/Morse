@@ -1,6 +1,7 @@
 package com.example.charliegerard.morse;
 
 import android.media.Image;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,9 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import org.w3c.dom.Text;
-
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,6 +26,16 @@ public class MainActivity extends AppCompatActivity {
 
     HashMap<String, String> morseMap = new HashMap<String, String>();
 
+    private Handler handler;
+    private int interval = 1000;
+
+    private int oneTimeUnit = 500;
+    private int dotUnitDuration = oneTimeUnit;
+    private int dashUnitDuration = oneTimeUnit * 3;
+    private int gapInCharacter = oneTimeUnit;
+    private int gapBetweenLetters = oneTimeUnit * 3;
+    private int getGapBetweenWords = oneTimeUnit * 7;
+
     private MyCameraImpl cameraImpl;
     public static boolean isFlashlightOn = false;
 
@@ -33,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        handler = new Handler();
+
         setupMorseMap();
     }
 
@@ -86,15 +100,35 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.translateBtn)
     public void translate(){
         String message = inputField.getText().toString();
-
+        Log.d("here?", "boo");
         for(int item = 0; item < message.length(); item++){
             String character = String.valueOf(message.charAt(item));
 
             if(morseMap.containsKey(character)){
                 Log.d("text", morseMap.get(character));
+                String morseValue = morseMap.get(character);
+                for(int index = 0; index < morseValue.length(); index++){
+//                    Log.d("value", morseValue.valueOf(index));
+                }
+//                startTranslating();
             }
         }
+    }
 
+    Runnable mStatusChecker = new Runnable() {
+        @Override
+        public void run() {
+            Log.d("test", "testing loop");
+            handler.postDelayed(mStatusChecker, interval);
+        }
+    };
+
+    public void startTranslating(){
+        mStatusChecker.run();
+    }
+
+    public void stopRepeatingTask(){
+        handler.removeCallbacks(mStatusChecker);
     }
 
     @Override
@@ -104,4 +138,11 @@ public class MainActivity extends AppCompatActivity {
             setupCameraImpl();
         }
     }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        stopRepeatingTask();
+    }
+
 }
