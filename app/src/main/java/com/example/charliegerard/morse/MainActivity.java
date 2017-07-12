@@ -1,5 +1,6 @@
 package com.example.charliegerard.morse;
 
+import android.hardware.Camera;
 import android.media.Image;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -9,7 +10,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
     private int gapInCharacter = oneTimeUnit;
     private int gapBetweenLetters = oneTimeUnit * 3;
     private int getGapBetweenWords = oneTimeUnit * 7;
+
+    private int currentDuration;
+    List<Integer> durations = new ArrayList<Integer>();
 
     private MyCameraImpl cameraImpl;
     public static boolean isFlashlightOn = false;
@@ -100,26 +106,50 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.translateBtn)
     public void translate(){
         String message = inputField.getText().toString();
-        Log.d("here?", "boo");
+
+        // At the moment, only working with messages made of 1 word.
+
         for(int item = 0; item < message.length(); item++){
+            // Each character in message.
             String character = String.valueOf(message.charAt(item));
 
             if(morseMap.containsKey(character)){
-                Log.d("text", morseMap.get(character));
+                // Morse value for each character in message.
                 String morseValue = morseMap.get(character);
+
                 for(int index = 0; index < morseValue.length(); index++){
-//                    Log.d("value", morseValue.valueOf(index));
+                    // Each character in morse value;
+                    String singleCharacterInMorseValue = String.valueOf(morseValue.charAt(index));
+
+                    if(singleCharacterInMorseValue.equals("-")){
+                        // dashUnitDuration
+//                        currentDuration = dashUnitDuration;
+
+                        durations.add(dashUnitDuration);
+
+                    } else if(singleCharacterInMorseValue.equals(".")){
+                        // dotUnitDuration
+//                        currentDuration = dotUnitDuration;
+                        Log.d("there", "should be .");
+                        durations.add(dotUnitDuration);
+
+                    } else if(singleCharacterInMorseValue.equals(" ")){
+                        // gapInCharacter
+//                        currentDuration = gapInCharacter;
+
+                        durations.add(gapInCharacter);
+                    }
                 }
-//                startTranslating();
             }
         }
+        startTranslation(durations);
     }
 
     Runnable mStatusChecker = new Runnable() {
         @Override
         public void run() {
-            Log.d("test", "testing loop");
-            handler.postDelayed(mStatusChecker, interval);
+
+            handler.postDelayed(mStatusChecker, currentDuration);
         }
     };
 
@@ -130,6 +160,29 @@ public class MainActivity extends AppCompatActivity {
     public void stopRepeatingTask(){
         handler.removeCallbacks(mStatusChecker);
     }
+
+    private void startTranslation(List durations){
+//        for(int index = 0; index < durations.size(); index++ ){
+//            Log.d("durations", String.valueOf(durations.get(index)));
+//        }
+
+        new Thread(morse).start();
+    }
+
+    private Runnable morse = new Runnable(){
+
+        @Override
+        public void run() {
+            try{
+                cameraImpl.toggleFlashlight(true);
+                Thread.sleep(5000);
+                cameraImpl.toggleFlashlight(false);
+                Thread.sleep(1000);
+            } catch(InterruptedException e){
+                Log.e("Err", "Interruption exception " + e.getMessage());
+            }
+        }
+    };
 
     @Override
     protected void onStart(){
@@ -144,5 +197,4 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         stopRepeatingTask();
     }
-
 }
