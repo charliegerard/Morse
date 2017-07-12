@@ -13,8 +13,6 @@ class MyCameraImpl {
     private MarshmallowCamera marshmallowCamera;
     private Context context;
 
-//    private static boolean isFlashlightOn;
-
     public MyCameraImpl(Context ctx){
         context = ctx;
 
@@ -31,12 +29,10 @@ class MyCameraImpl {
     }
 
     private void disableFlashlight() {
-//        isFlashlightOn = false;
         toggleFlashlight(false);
     }
 
     public void enableFlashlight() {
-//        isFlashlightOn = true;
         toggleFlashlight(true);
     }
 

@@ -3,6 +3,7 @@ package com.example.charliegerard.morse;
 import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 
@@ -27,11 +28,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupCameraImpl(){
         cameraImpl = new MyCameraImpl(this);
-        cameraImpl.enableFlashlight();
+        // The following line was triggering the flashlight by default when the app opens.
+        // cameraImpl.enableFlashlight();
     }
 
     @OnClick(R.id.switchBtn)
-    public void toggleFlashlight(){
+    public void changeStateFlashlight(){
         isFlashlightOn = !isFlashlightOn;
         cameraImpl.toggleFlashlight(isFlashlightOn);
 
@@ -40,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             toggleBtnOff.setBackgroundResource(R.drawable.off);
         }
-
     }
 
     @Override

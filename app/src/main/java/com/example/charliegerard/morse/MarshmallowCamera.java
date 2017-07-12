@@ -25,7 +25,7 @@ class MarshmallowCamera {
             final String[] list = manager.getCameraIdList();
             cameraId = list[0];
         } catch(CameraAccessException ignored){
-
+            Log.e("ERR", "access to camera " + ignored.getMessage());
         }
     }
 
