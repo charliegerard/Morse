@@ -104,8 +104,9 @@ public class MainActivity extends AppCompatActivity {
                 // for each character in the word.
                 for(int index = 0; index < word.length(); index++){
                     String character = String.valueOf(word.charAt(index));
-                    if(morseMap.containsKey(character)){
-                        String morseValue = morseMap.get(character);
+                    String characterLowercase = character.toLowerCase();
+                    if(morseMap.containsKey(characterLowercase)){
+                        String morseValue = morseMap.get(characterLowercase);
 
                         for(int elementIndex = 0; elementIndex < morseValue.length(); elementIndex++){
                             String element = String.valueOf(morseValue.charAt(elementIndex));
