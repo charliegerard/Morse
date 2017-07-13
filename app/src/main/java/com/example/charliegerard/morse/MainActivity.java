@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     HashMap<String, String> morseMap = new HashMap<String, String>();
 
-    private int oneTimeUnit = 500;
+    private int oneTimeUnit = 300;
     private int dotUnitDuration = oneTimeUnit;
     private int dashUnitDuration = oneTimeUnit * 3;
     private int gapInCharacter = oneTimeUnit;
@@ -95,39 +95,37 @@ public class MainActivity extends AppCompatActivity {
     private Runnable morse = new Runnable(){
 
         private void mapMessageToMorse(){
-            // At the moment, only working with messages made of 1 word.
 
             String message = inputField.getText().toString();
+            String[] words = message.split("\\s+");
 
-            //Probably could be refactored;
+            // for each word in the message.
+            for(String word: words){
+                // for each character in the word.
+                for(int index = 0; index < word.length(); index++){
+                    String character = String.valueOf(word.charAt(index));
+                    if(morseMap.containsKey(character)){
+                        String morseValue = morseMap.get(character);
 
-            for(int item = 0; item < message.length(); item++){
-                // Each character in message.
-                String character = String.valueOf(message.charAt(item));
+                        for(int elementIndex = 0; elementIndex < morseValue.length(); elementIndex++){
+                            String element = String.valueOf(morseValue.charAt(elementIndex));
 
-                if(morseMap.containsKey(character)){
-                    // Morse value for each character in message.
-                    String morseValue = morseMap.get(character);
-
-                    for(int index = 0; index < morseValue.length(); index++){
-                        // Each character in morse value;
-                        String singleCharacterInMorseValue = String.valueOf(morseValue.charAt(index));
-
-                        if(singleCharacterInMorseValue.equals("-")){
-
-                            executeMorseLights(dashUnitDuration, true);
-
-                        } else if(singleCharacterInMorseValue.equals(".")){
-
-                            executeMorseLights(dotUnitDuration, true);
-
-                        } else if(singleCharacterInMorseValue.equals(" ")){
-                            executeMorseLights(gapInCharacter, false);
+                            if(element.equals(".")){
+                                executeMorseLights(dotUnitDuration, true);
+                            } else if(element.equals("-")){
+                                executeMorseLights(dashUnitDuration, true);
+                            } else if(element.equals(" ")){
+                                executeMorseLights(gapInCharacter, false);
+                            }
                         }
-
+                        // Pause the light between letters in a word.
+                        executeMorseLights(gapBetweenLetters, false);
                     }
                 }
+                // Pause the light between words.
+                executeMorseLights(getGapBetweenWords, false);
             }
+
         }
 
         private void executeMorseLights(int duration, boolean state){
