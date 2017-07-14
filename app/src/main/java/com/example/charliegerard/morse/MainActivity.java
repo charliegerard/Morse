@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     HashMap<String, String> morseMap = new HashMap<String, String>();
 
-    private int oneTimeUnit = 300;
+    private int oneTimeUnit = 240;
     private int dotUnitDuration = oneTimeUnit;
     private int dashUnitDuration = oneTimeUnit * 3;
     private int gapInCharacter = oneTimeUnit;
@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
 
     private MyCameraImpl cameraImpl;
     public static boolean isFlashlightOn = false;
+
+    Thread newThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,24 +77,34 @@ public class MainActivity extends AppCompatActivity {
         cameraImpl = new MyCameraImpl(this);
     }
 
-    @OnClick(R.id.switchBtn)
-    public void changeStateFlashlight(){
-        isFlashlightOn = !isFlashlightOn;
-        cameraImpl.toggleFlashlight(isFlashlightOn);
+//    @OnClick(R.id.switchBtn)
+//    public void changeStateFlashlight(){
+//        isFlashlightOn = !isFlashlightOn;
+//        cameraImpl.toggleFlashlight(isFlashlightOn);
+//
+//        if(isFlashlightOn){
+//            toggleBtnOff.setBackgroundResource(R.drawable.on);
+//        } else {
+//            toggleBtnOff.setBackgroundResource(R.drawable.off);
+//        }
+//    }
 
-        if(isFlashlightOn){
+    @OnClick(R.id.translateBtn)
+    public void translate(){
+        changeStateIcon(true);
+        newThread = new Thread(morse);
+        newThread.start();
+    }
+
+    private void changeStateIcon(boolean stateBtn){
+        if(stateBtn == true){
             toggleBtnOff.setBackgroundResource(R.drawable.on);
         } else {
             toggleBtnOff.setBackgroundResource(R.drawable.off);
         }
     }
 
-    @OnClick(R.id.translateBtn)
-    public void translate(){
-        new Thread(morse).start();
-    }
-
-    private Runnable morse = new Runnable(){
+    Runnable morse = new Runnable(){
 
         private void mapMessageToMorse(){
 
@@ -141,7 +153,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
             mapMessageToMorse();
-            cameraImpl.toggleFlashlight(false);
+            //Run following action on UI thread rather than background thread because it is changing an icon.
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    changeStateIcon(false);
+                }
+            });
+//            cameraImpl.toggleFlashlight(false);
         }
     };
 
