@@ -6,17 +6,29 @@
     android:layout_height="match_parent"
     tools:context="com.example.charliegerard.morse.MainActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="8dp" />
+
     <TextView
+        android:id="@+id/textView"
         android:layout_width="379dp"
         android:layout_height="wrap_content"
-        android:text="Morse flashlight"
-        android:textSize="38dp"
-        android:textColor="@color/colorAccent"
+        android:fontFamily="sans-serif-condensed"
         android:gravity="center"
+        android:text="Morse"
+        android:textColor="@android:color/background_dark"
+        android:textSize="38dp"
         android:textStyle="bold"
-        tools:layout_editor_absoluteY="0dp"
         tools:layout_editor_absoluteX="16dp"
-        android:id="@+id/textView" />
+        tools:layout_editor_absoluteY="0dp" />
 
     <Button
         android:id="@+id/switchBtn"
@@ -26,19 +38,21 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.875" />
 
     <EditText
         android:id="@+id/inputText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
+        android:hint="Enter text to translate"
         android:inputType="textPersonName"
-        android:text="Enter your text..."
+        app:layout_constraintBottom_toTopOf="@+id/switchBtn"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/translateBtn"
-        app:layout_constraintBottom_toTopOf="@+id/switchBtn"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintVertical_bias="0.201" />
 
     <Button
         android:id="@+id/translateBtn"
@@ -47,8 +61,20 @@
         android:text="Translate"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/inputText"
-        app:layout_constraintBottom_toTopOf="@+id/switchBtn"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintVertical_bias="0.204"
+        app:layout_constraintBottom_toBottomOf="@+id/inputText"
+        app:layout_constraintTop_toTopOf="@+id/inputText" />
 
+    <Button
+        android:id="@+id/textToMorsebutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/transparent_button"
+        android:onClick="textToMorseView"
+        android:text="Text to Morse"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/switchBtn"
+        app:layout_constraintTop_toBottomOf="@+id/inputText" />
 
 </android.support.constraint.ConstraintLayout>

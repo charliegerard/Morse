@@ -1,10 +1,12 @@
 package com.example.charliegerard.morse;
 
+import android.content.Intent;
 import android.hardware.Camera;
 import android.media.Image;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -20,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.switchBtn) Button toggleBtnOff;
     @BindView(R.id.translateBtn) Button translateButton;
     @BindView(R.id.inputText) EditText inputField;
+    @BindView(R.id.textToMorsebutton) Button textToMorseButton;
 
     HashMap<String, String> morseMap = new HashMap<String, String>();
 
@@ -77,18 +80,7 @@ public class MainActivity extends AppCompatActivity {
         cameraImpl = new MyCameraImpl(this);
     }
 
-//    @OnClick(R.id.switchBtn)
-//    public void changeStateFlashlight(){
-//        isFlashlightOn = !isFlashlightOn;
-//        cameraImpl.toggleFlashlight(isFlashlightOn);
-//
-//        if(isFlashlightOn){
-//            toggleBtnOff.setBackgroundResource(R.drawable.on);
-//        } else {
-//            toggleBtnOff.setBackgroundResource(R.drawable.off);
-//        }
-//    }
-
+    
     @OnClick(R.id.translateBtn)
     public void translate(){
         changeStateIcon(true);
@@ -160,9 +152,14 @@ public class MainActivity extends AppCompatActivity {
                     changeStateIcon(false);
                 }
             });
-//            cameraImpl.toggleFlashlight(false);
         }
     };
+
+    @OnClick (R.id.textToMorsebutton)
+    public void textToMorseView(View view){
+        Intent intent = new Intent(this, TextToMorseActivity.class);
+        startActivity(intent);
+    }
 
     @Override
     protected void onStart(){
