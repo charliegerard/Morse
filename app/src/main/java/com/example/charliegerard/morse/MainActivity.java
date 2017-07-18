@@ -16,6 +16,7 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.textToMorsebutton) Button textToMorseButton;
+    @BindView(R.id.morseToTextbutton) Button morseToTextButton;
 
     public static boolean isFlashlightOn = false;
 
@@ -29,6 +30,12 @@ public class MainActivity extends AppCompatActivity {
     @OnClick (R.id.textToMorsebutton)
     public void textToMorseView(View view){
         Intent intent = new Intent(this, TextToMorseActivity.class);
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.morseToTextbutton)
+    public void morseToTextView(View view){
+        Intent intent = new Intent(this, MorseToTextActivity.class);
         startActivity(intent);
     }
 }
