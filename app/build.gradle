@@ -21,6 +21,14 @@ android {
             debuggable true
         }
     }
+//    splits {
+//        abi {
+//            enable true
+//            reset()
+//            include 'x86', 'armeabi-v7a', 'x86_64'
+//            universalApk true
+//        }
+//    }
 }
 
 dependencies {
@@ -34,4 +42,5 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
     testCompile 'junit:junit:4.12'
     apt 'com.jakewharton:butterknife-compiler:8.0.1'
+    compile project(':openCVLibrary320')
 }

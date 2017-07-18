@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.textToMorsebutton) Button textToMorseButton;
     @BindView(R.id.morseToTextbutton) Button morseToTextButton;
+    @BindView(R.id.testButton) Button testButton;
 
     public static boolean isFlashlightOn = false;
 
@@ -36,6 +37,12 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.morseToTextbutton)
     public void morseToTextView(View view){
         Intent intent = new Intent(this, MorseToTextActivity.class);
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.testButton)
+    public void test(View view){
+        Intent intent = new Intent(this, testActivity.class);
         startActivity(intent);
     }
 }
