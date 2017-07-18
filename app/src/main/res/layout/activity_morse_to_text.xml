@@ -27,4 +27,11 @@
         tools:layout_editor_absoluteX="185dp"
         tools:layout_editor_absoluteY="238dp" />
 
+    <FrameLayout
+        android:id="@+id/camera_preview"
+        android:layout_width="fill_parent"
+        android:layout_height="400dp"
+        android:layout_weight="1"
+        />
+
 </android.support.constraint.ConstraintLayout>
