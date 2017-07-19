@@ -4,6 +4,7 @@ import android.hardware.Camera;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
@@ -37,6 +38,7 @@ public class MorseToTextActivity extends AppCompatActivity {
         }
         catch (Exception e){
             // Camera is not available (in use or does not exist)
+            Log.d("Error with camera: ", e.getMessage());
         }
         return c; // returns null if camera is unavailable
     }
