@@ -1,5 +1,8 @@
 package com.example.charliegerard.morse;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.support.v4.graphics.BitmapCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -11,8 +14,10 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 import butterknife.OnTouch;
 
@@ -21,6 +26,7 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     public String TAG = "Camera ";
     protected CameraBridgeViewBase cameraPreview;
     protected Mat mRgba;
+    public CameraBridgeViewBase.CvCameraViewListener2 camListener;
 
     protected BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -33,6 +39,7 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
 //                    mOpenCvCameraView.setOnTouchListener(ColorRegionDetectionActivity.this);
 
                     cameraPreview.enableView();
+                    run();
                 } break;
                 default:
                 {
@@ -50,7 +57,7 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
 
         cameraPreview = (CameraBridgeViewBase) findViewById(R.id.sample_test_camera_view);
 
-        cameraPreview.setCvCameraViewListener(this);
+//        cameraPreview.setCvCameraViewListener(this);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -115,6 +122,29 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     public boolean onTouch(View v, MotionEvent event) {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    private void run(){
+        camListener = new CameraBridgeViewBase.CvCameraViewListener2() {
+            @Override
+            public void onCameraViewStarted(int width, int height) {
+
+            }
+
+            @Override
+            public void onCameraViewStopped() {
+
+            }
+
+            @Override
+            public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+                mRgba = inputFrame.rgba();
+                Mat gray = new Mat();
+                Imgproc.cvtColor(mRgba, gray,Imgproc.COLOR_RGB2GRAY);
+                return gray;
+            }
+        };
+        cameraPreview.setCvCameraViewListener(camListener);
     }
 }
 
