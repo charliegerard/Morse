@@ -31,6 +31,7 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                     Log.i(TAG, "OpenCV loaded successfully");
 //                    mOpenCvCameraView.enableView();
 //                    mOpenCvCameraView.setOnTouchListener(ColorRegionDetectionActivity.this);
+
                     cameraPreview.enableView();
                 } break;
                 default:
