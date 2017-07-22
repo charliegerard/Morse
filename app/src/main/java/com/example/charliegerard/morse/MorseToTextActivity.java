@@ -141,9 +141,11 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 mRgba = inputFrame.rgba();
                 Mat gray = new Mat();
                 Mat blur = new Mat();
+                Mat imageThreshold = new Mat();
                 Imgproc.cvtColor(mRgba, gray,Imgproc.COLOR_RGB2GRAY);
-                Imgproc.blur(gray, blur, new org.opencv.core.Size(20,20));
-                return blur;
+                Imgproc.blur(gray, blur, new org.opencv.core.Size(10,10));
+                Imgproc.threshold(blur, imageThreshold,254, 255, Imgproc.THRESH_BINARY);
+                return imageThreshold;
             }
         };
         cameraPreview.setCvCameraViewListener(camListener);
