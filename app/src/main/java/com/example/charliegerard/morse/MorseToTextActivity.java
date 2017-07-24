@@ -15,11 +15,26 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.OnTouch;
+
+import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
+import static org.opencv.imgproc.Imgproc.RETR_EXTERNAL;
+import static org.opencv.imgproc.Imgproc.RETR_LIST;
+import static org.opencv.imgproc.Imgproc.dilate;
 
 public class MorseToTextActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnTouchListener{
 
@@ -140,12 +155,37 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
                 mRgba = inputFrame.rgba();
                 Mat gray = new Mat();
-                Mat blur = new Mat();
-                Mat imageThreshold = new Mat();
+
+                List<MatOfPoint> contours = new ArrayList<>();
+
                 Imgproc.cvtColor(mRgba, gray,Imgproc.COLOR_RGB2GRAY);
-                Imgproc.blur(gray, blur, new org.opencv.core.Size(10,10));
-                Imgproc.threshold(blur, imageThreshold,254, 255, Imgproc.THRESH_BINARY);
-                return imageThreshold;
+                Imgproc.GaussianBlur(gray, gray, new Size(5,5), 0);
+//                Imgproc.Canny(gray, gray, 80,100);
+                Imgproc.threshold(gray, gray, 250, 255, Imgproc.THRESH_BINARY);
+
+                Imgproc.erode(gray, gray, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(10,10)));
+                Imgproc.dilate(gray, gray, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(10,10)));
+
+                Imgproc.findContours(gray, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0,0));
+
+                for(int i=0; i < contours.size(); i++){
+                    if(Imgproc.contourArea(contours.get(i)) > 50){
+
+                        MatOfPoint2f approxCurve = new MatOfPoint2f();
+                        MatOfPoint2f contour2f = new MatOfPoint2f(contours.get(i).toArray());
+                        double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
+                        Imgproc.approxPolyDP(contour2f,approxCurve, approxDistance, true);
+
+                        MatOfPoint points = new MatOfPoint(approxCurve.toArray());
+
+                        Rect rect = Imgproc.boundingRect(points);
+
+                        if(rect.height > 28){ //optional
+                            Imgproc.rectangle(gray, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255,0,0,255), 3);
+                        }
+                    }
+                }
+                return gray;
             }
         };
         cameraPreview.setCvCameraViewListener(camListener);
