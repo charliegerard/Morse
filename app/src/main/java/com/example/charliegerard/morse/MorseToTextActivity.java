@@ -155,31 +155,41 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
                 mRgba = inputFrame.rgba();
                 Mat gray = new Mat();
+                Mat bwImg = new Mat();
 
                 List<MatOfPoint> contours = new ArrayList<>();
 
                 Imgproc.cvtColor(mRgba, gray,Imgproc.COLOR_RGB2GRAY);
                 Imgproc.GaussianBlur(gray, gray, new Size(5,5), 0);
 //                Imgproc.Canny(gray, gray, 80,100);
-                Imgproc.threshold(gray, gray, 250, 255, Imgproc.THRESH_BINARY);
+                Imgproc.threshold(gray, bwImg, 250, 255, Imgproc.THRESH_BINARY);
 
-                Imgproc.erode(gray, gray, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(10,10)));
-                Imgproc.dilate(gray, gray, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(10,10)));
+//                Imgproc.erode(gray, gray, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(10,10)));
+//                Imgproc.dilate(gray, gray, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(10,10)));
 
-                Imgproc.findContours(gray, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0,0));
+                Imgproc.findContours(bwImg, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0,0));
+
+                double maxVal = 0;
+                int maxValId = 0;
 
                 for(int i=0; i < contours.size(); i++){
-                    if(Imgproc.contourArea(contours.get(i)) > 300){
+                    double contourArea = Imgproc.contourArea(contours.get(i));
+                    if(maxVal < contourArea){
+                        maxVal = contourArea;
+                        maxValId = i;
+                    }
 
-                        MatOfPoint2f approxCurve = new MatOfPoint2f();
-                        MatOfPoint2f contour2f = new MatOfPoint2f(contours.get(i).toArray());
-                        double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
-                        Imgproc.approxPolyDP(contour2f,approxCurve, approxDistance, true);
+                    //if(Imgproc.contourArea(contours.get(i)) > 300){
 
-                        MatOfPoint points = new MatOfPoint(approxCurve.toArray());
-
-                        Rect rect = Imgproc.boundingRect(points);
+//                        MatOfPoint2f approxCurve = new MatOfPoint2f();
+//                        MatOfPoint2f contour2f = new MatOfPoint2f(contours.get(i).toArray());
+//                        double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
+//                        Imgproc.approxPolyDP(contour2f,approxCurve, approxDistance, true);
 //
+//                        MatOfPoint points = new MatOfPoint(approxCurve.toArray());
+//
+//                        Rect rect = Imgproc.boundingRect(points);
+
 //                        if(rect.height > 28){ //optional
 //                            int width = rect.x + rect.width;
 //                            int length = rect.y + rect.height;
@@ -187,13 +197,17 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
 //                            Imgproc.rectangle(gray, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255,0,0,255), 3);
 //                            Imgproc.putText(gray, "Face: "+ area, new Point(rect.x, rect.y), 3, 1, new Scalar(255,0,0,255), 1);
 //                        }
-                        if(Imgproc.contourArea(contours.get(i)) > 1000){
-                            Imgproc.rectangle(gray, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255,0,0,255), 3);
-//                            Imgproc.drawContours(gray, contours, i, new Scalar(255,0,0,255),5);
-                        }
-                    }
+
+//                        if(Imgproc.contourArea(contours.get(i)) > 1000){
+//                            Imgproc.rectangle(gray, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255,0,0,255), 3);
+////                            Imgproc.drawContours(gray, contours, i, new Scalar(255,0,0,255),5);
+//                        }
+                    //}
                 }
-                return gray;
+
+                Imgproc.drawContours(mRgba, contours, maxValId, new Scalar(255,0,0,255), 5);
+
+                return mRgba;
             }
         };
         cameraPreview.setCvCameraViewListener(camListener);
