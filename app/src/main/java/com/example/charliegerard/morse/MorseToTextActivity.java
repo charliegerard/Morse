@@ -41,6 +41,10 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     protected CameraBridgeViewBase cameraPreview;
     protected Mat mRgba;
     public CameraBridgeViewBase.CvCameraViewListener2 camListener;
+    int x = -1;
+    int y = -1;
+    double [] rgb;
+    float averageBrightness = 0;
 
     protected BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -153,6 +157,10 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
             @Override
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
                 mRgba = inputFrame.rgba();
+                if(x != -1 && y != -1){
+                    rgb = mRgba.get(x,y); //get RGB values for the touch event.
+                }
+
                 Mat gray = new Mat();
                 Mat bwImg = new Mat();
 
@@ -186,18 +194,16 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 // Contour of the largest blob.
                 Imgproc.drawContours(mRgba, contours, maxValId, new Scalar(255,0,0,255), 5);
 
-                // Bounding rectangle of the largest blob.
-                MatOfPoint2f approxCurve = new MatOfPoint2f();
-                MatOfPoint2f contour2f = new MatOfPoint2f(contours.get(maxValId).toArray());
-                double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
-                Imgproc.approxPolyDP(contour2f,approxCurve, approxDistance, true);
-                MatOfPoint points = new MatOfPoint(approxCurve.toArray());
-                Rect lightBoundary = Imgproc.boundingRect(points);
-                Imgproc.rectangle(mRgba, new Point(lightBoundary.x, lightBoundary.y), new Point(lightBoundary.x + lightBoundary.width, lightBoundary.y + lightBoundary.height), new Scalar(255,0,0,255), 3);
-
-                if(checkIfBlobAtCenter(rect, lightBoundary)){
-
-                };
+                if(contours != null){
+                    // Bounding rectangle of the largest blob.
+                    MatOfPoint2f approxCurve = new MatOfPoint2f();
+                    MatOfPoint2f contour2f = new MatOfPoint2f(contours.get(maxValId).toArray());
+                    double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
+                    Imgproc.approxPolyDP(contour2f,approxCurve, approxDistance, true);
+                    MatOfPoint points = new MatOfPoint(approxCurve.toArray());
+                    Rect lightBoundary = Imgproc.boundingRect(points);
+                    Imgproc.rectangle(mRgba, new Point(lightBoundary.x, lightBoundary.y), new Point(lightBoundary.x + lightBoundary.width, lightBoundary.y + lightBoundary.height), new Scalar(255,0,0,255), 3);
+                }
 
                 return mRgba;
             }
@@ -219,11 +225,15 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // TODO Auto-generated method stub
-        int x = (int)event.getX();
-        int y = (int)event.getY();
+        x = (int)event.getX();
+        y = (int)event.getY();
         Log.d("touch", String.valueOf(x));
+        if(rgb != null){
+            Imgproc.rectangle(mRgba, new Point(200, 200), new Point(300, 300), new Scalar(0,255,0, 255), 3);
+            Log.d("Color: Red", String.valueOf(rgb[0]) + " Green: " + String.valueOf(rgb[1]) + " Blue: " + String.valueOf(rgb[2]));
+        }
 
-        return false;
+        return super.onTouchEvent(event);
     }
 }
 
