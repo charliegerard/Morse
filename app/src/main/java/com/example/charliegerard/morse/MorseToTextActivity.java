@@ -34,6 +34,7 @@ import butterknife.OnTouch;
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
 import static org.opencv.imgproc.Imgproc.RETR_EXTERNAL;
 import static org.opencv.imgproc.Imgproc.RETR_LIST;
+import static org.opencv.imgproc.Imgproc.boundingRect;
 import static org.opencv.imgproc.Imgproc.dilate;
 
 public class MorseToTextActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnTouchListener{
@@ -162,7 +163,7 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 Imgproc.cvtColor(mRgba, gray,Imgproc.COLOR_RGB2GRAY);
                 Imgproc.GaussianBlur(gray, gray, new Size(5,5), 0);
 //                Imgproc.Canny(gray, gray, 80,100);
-                Imgproc.threshold(gray, bwImg, 250, 255, Imgproc.THRESH_BINARY);
+                Imgproc.threshold(gray, bwImg, 200, 255, Imgproc.THRESH_BINARY);
 
 //                Imgproc.erode(gray, gray, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(10,10)));
 //                Imgproc.dilate(gray, gray, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(10,10)));
@@ -178,39 +179,43 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                         maxVal = contourArea;
                         maxValId = i;
                     }
-
-                    //if(Imgproc.contourArea(contours.get(i)) > 300){
-
-//                        MatOfPoint2f approxCurve = new MatOfPoint2f();
-//                        MatOfPoint2f contour2f = new MatOfPoint2f(contours.get(i).toArray());
-//                        double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
-//                        Imgproc.approxPolyDP(contour2f,approxCurve, approxDistance, true);
-//
-//                        MatOfPoint points = new MatOfPoint(approxCurve.toArray());
-//
-//                        Rect rect = Imgproc.boundingRect(points);
-
-//                        if(rect.height > 28){ //optional
-//                            int width = rect.x + rect.width;
-//                            int length = rect.y + rect.height;
-//                            int area = width * length;
-//                            Imgproc.rectangle(gray, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255,0,0,255), 3);
-//                            Imgproc.putText(gray, "Face: "+ area, new Point(rect.x, rect.y), 3, 1, new Scalar(255,0,0,255), 1);
-//                        }
-
-//                        if(Imgproc.contourArea(contours.get(i)) > 1000){
-//                            Imgproc.rectangle(gray, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255,0,0,255), 3);
-////                            Imgproc.drawContours(gray, contours, i, new Scalar(255,0,0,255),5);
-//                        }
-                    //}
                 }
-
+                Rect rect = new Rect();
+                rect.width = mRgba.width();
+                rect.height = mRgba.height();
+                // Rectangle at the center of the camera preview.
+                Imgproc.rectangle(mRgba, new Point(rect.width/4 * 1, rect.height/4 * 1), new Point(rect.width/4 * 3, rect.height/4 * 3), new Scalar(255,255,255), 5);
+                // Contour of the largest blob.
                 Imgproc.drawContours(mRgba, contours, maxValId, new Scalar(255,0,0,255), 5);
+
+                // Bounding rectangle of the largest blob.
+                MatOfPoint2f approxCurve = new MatOfPoint2f();
+                MatOfPoint2f contour2f = new MatOfPoint2f(contours.get(maxValId).toArray());
+                double approxDistance = Imgproc.arcLength(contour2f, true) * 0.02;
+                Imgproc.approxPolyDP(contour2f,approxCurve, approxDistance, true);
+                MatOfPoint points = new MatOfPoint(approxCurve.toArray());
+                Rect lightBoundary = Imgproc.boundingRect(points);
+                Imgproc.rectangle(mRgba, new Point(lightBoundary.x, lightBoundary.y), new Point(lightBoundary.x + lightBoundary.width, lightBoundary.y + lightBoundary.height), new Scalar(255,0,0,255), 3);
+
+                if(checkIfBlobAtCenter(rect, lightBoundary)){
+
+                };
 
                 return mRgba;
             }
         };
         cameraPreview.setCvCameraViewListener(camListener);
+    }
+
+    private boolean checkIfBlobAtCenter(Rect centerRect, Rect blobBoundary) {
+        boolean isAtCenter = false;
+        if(blobBoundary.x > centerRect.x &&
+                blobBoundary.x + blobBoundary.width < centerRect.x + centerRect.width &&
+                blobBoundary.y > centerRect.y && blobBoundary.y + blobBoundary.height < centerRect.y + centerRect.height){
+
+            isAtCenter = true;
+        }
+        return isAtCenter;
     }
 }
 
