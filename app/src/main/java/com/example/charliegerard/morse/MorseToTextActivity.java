@@ -29,8 +29,6 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.OnTouch;
-
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
 import static org.opencv.imgproc.Imgproc.RETR_EXTERNAL;
 import static org.opencv.imgproc.Imgproc.RETR_LIST;
@@ -73,7 +71,7 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
 
         cameraPreview = (CameraBridgeViewBase) findViewById(R.id.sample_test_camera_view);
 
-//        cameraPreview.setCvCameraViewListener(this);
+        cameraPreview.setCvCameraViewListener(this);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -216,6 +214,16 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
             isAtCenter = true;
         }
         return isAtCenter;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // TODO Auto-generated method stub
+        int x = (int)event.getX();
+        int y = (int)event.getY();
+        Log.d("touch", String.valueOf(x));
+
+        return false;
     }
 }
 
