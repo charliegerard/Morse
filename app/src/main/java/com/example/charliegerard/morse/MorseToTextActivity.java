@@ -169,7 +169,7 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 Imgproc.findContours(gray, contours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0,0));
 
                 for(int i=0; i < contours.size(); i++){
-                    if(Imgproc.contourArea(contours.get(i)) > 50){
+                    if(Imgproc.contourArea(contours.get(i)) > 300){
 
                         MatOfPoint2f approxCurve = new MatOfPoint2f();
                         MatOfPoint2f contour2f = new MatOfPoint2f(contours.get(i).toArray());
@@ -179,9 +179,17 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                         MatOfPoint points = new MatOfPoint(approxCurve.toArray());
 
                         Rect rect = Imgproc.boundingRect(points);
-
-                        if(rect.height > 28){ //optional
+//
+//                        if(rect.height > 28){ //optional
+//                            int width = rect.x + rect.width;
+//                            int length = rect.y + rect.height;
+//                            int area = width * length;
+//                            Imgproc.rectangle(gray, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255,0,0,255), 3);
+//                            Imgproc.putText(gray, "Face: "+ area, new Point(rect.x, rect.y), 3, 1, new Scalar(255,0,0,255), 1);
+//                        }
+                        if(Imgproc.contourArea(contours.get(i)) > 1000){
                             Imgproc.rectangle(gray, new Point(rect.x, rect.y), new Point(rect.x + rect.width, rect.y + rect.height), new Scalar(255,0,0,255), 3);
+//                            Imgproc.drawContours(gray, contours, i, new Scalar(255,0,0,255),5);
                         }
                     }
                 }
