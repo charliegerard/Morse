@@ -194,7 +194,7 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 // Contour of the largest blob.
                 Imgproc.drawContours(mRgba, contours, maxValId, new Scalar(255,0,0,255), 5);
 
-                if(contours != null){
+                if(maxValId != 0){
                     // Bounding rectangle of the largest blob.
                     MatOfPoint2f approxCurve = new MatOfPoint2f();
                     MatOfPoint2f contour2f = new MatOfPoint2f(contours.get(maxValId).toArray());
@@ -204,6 +204,10 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                     Rect lightBoundary = Imgproc.boundingRect(points);
                     Imgproc.rectangle(mRgba, new Point(lightBoundary.x, lightBoundary.y), new Point(lightBoundary.x + lightBoundary.width, lightBoundary.y + lightBoundary.height), new Scalar(255,0,0,255), 3);
                 }
+
+                //Original camera feed is rotated to appear correctly
+                //So drawing a circle can't only be x,y.
+                Imgproc.circle(mRgba, new Point(y, rect.width - x), 100, new Scalar(255,255,255), 5);
 
                 return mRgba;
             }
@@ -225,13 +229,17 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // TODO Auto-generated method stub
-        x = (int)event.getX();
-        y = (int)event.getY();
-        Log.d("touch", String.valueOf(x));
-        if(rgb != null){
-            Imgproc.rectangle(mRgba, new Point(200, 200), new Point(300, 300), new Scalar(0,255,0, 255), 3);
-            Log.d("Color: Red", String.valueOf(rgb[0]) + " Green: " + String.valueOf(rgb[1]) + " Blue: " + String.valueOf(rgb[2]));
+
+        if(event.getAction() == MotionEvent.ACTION_DOWN) {
+
+            x = (int) event.getX();
+            y = (int) event.getY();
+
         }
+//        if(rgb != null){
+
+//            Log.d("Color: Red", String.valueOf(rgb[0]) + " Green: " + String.valueOf(rgb[1]) + " Blue: " + String.valueOf(rgb[2]));
+//        }
 
         return super.onTouchEvent(event);
     }
