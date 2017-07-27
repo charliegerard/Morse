@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.os.Handler;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -29,6 +30,8 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
+//import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
 import static org.opencv.imgproc.Imgproc.RETR_EXTERNAL;
@@ -49,6 +52,10 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     int previousCounter = -1;
     boolean previous = false;
     boolean isAtCenter = false;
+
+    //Timer variables
+    long init,now,time,paused;
+    Handler handler;
 
 
     protected BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -86,6 +93,8 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
         setSupportActionBar(myToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        handler = new Handler();
     }
 
     @Override
@@ -104,6 +113,7 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
         if(cameraPreview != null){
             cameraPreview.disableView();
         }
+        paused = System.currentTimeMillis();
     }
 
     @Override
@@ -117,6 +127,8 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
             Log.d(TAG, "OpenCV library found inside package. Loading it");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
+
+        init += System.currentTimeMillis();
 
     }
 
@@ -222,20 +234,20 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 //So drawing a circle can't only be x,y.
 //                Imgproc.circle(mRgba, new Point(y, rect.width - x), 50, new Scalar(255,255,255), 5);
 
-                //Drawing line instead of circle to try and get pixel brightness.
-                int horiLineX1 = y;
-                int horiLineY1 = 0;
-                int horiLineX2 = y;
-                int horiLineY2 = rect.height;
-
-                int vertLineX1 = 0;
-                int vertLineY1 = rect.width - x;
-                int vertLineX2 = rect.width;
-                int vertLineY2 = rect.width - x;
-                //Horizontal line.
-                Imgproc.line(mRgba, new Point(horiLineX1,horiLineY1), new Point(horiLineX2, horiLineY2), new Scalar(255,0,0), 3);
-                //Vertical line
-                Imgproc.line(mRgba, new Point(vertLineX1, vertLineY1), new Point(vertLineX2, vertLineY2), new Scalar(255,0,0), 3);
+//                //Drawing line instead of circle to try and get pixel brightness.
+//                int horiLineX1 = y;
+//                int horiLineY1 = 0;
+//                int horiLineX2 = y;
+//                int horiLineY2 = rect.height;
+//
+//                int vertLineX1 = 0;
+//                int vertLineY1 = rect.width - x;
+//                int vertLineX2 = rect.width;
+//                int vertLineY2 = rect.width - x;
+//                //Horizontal line.
+//                Imgproc.line(mRgba, new Point(horiLineX1,horiLineY1), new Point(horiLineX2, horiLineY2), new Scalar(255,0,0), 3);
+//                //Vertical line
+//                Imgproc.line(mRgba, new Point(vertLineX1, vertLineY1), new Point(vertLineX2, vertLineY2), new Scalar(255,0,0), 3);
 
 //                Point intersection = calculateIntersectionPoint(horiLineX1, horiLineY1, horiLineX2, horiLineY2, vertLineX1, vertLineY1, vertLineX2, vertLineY2);
 
@@ -245,16 +257,16 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
         cameraPreview.setCvCameraViewListener(camListener);
     }
 
-    public Point calculateIntersectionPoint(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4) {
-        // equation found here: https://stackoverflow.com/questions/30072854/android-opencv-retrieve-intersection-point
-        int d = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
-        if (d == 0) return null;
-
-        int xi = ((x3-x4)*(x1*y2-y1*x2)-(x1-x2)*(x3*y4-y3*x4))/d;
-        int yi = ((y3-y4)*(x1*y2-y1*x2)-(y1-y2)*(x3*y4-y3*x4))/d;
-
-        return new Point(xi, yi);
-    };
+//    public Point calculateIntersectionPoint(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4) {
+//        // equation found here: https://stackoverflow.com/questions/30072854/android-opencv-retrieve-intersection-point
+//        int d = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
+//        if (d == 0) return null;
+//
+//        int xi = ((x3-x4)*(x1*y2-y1*x2)-(x1-x2)*(x3*y4-y3*x4))/d;
+//        int yi = ((y3-y4)*(x1*y2-y1*x2)-(y1-y2)*(x3*y4-y3*x4))/d;
+//
+//        return new Point(xi, yi);
+//    };
 
     private boolean checkIfBlobAtCenter(Rect centerRect, Rect blobBoundary) {
         previous = isAtCenter;
@@ -264,19 +276,34 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 blobBoundary.y > centerRect.y && blobBoundary.y + blobBoundary.height < centerRect.y + centerRect.height){
 
             isAtCenter = true;
-
 //            Log.d("center", String.valueOf(blobBoundary.area()));
         } else {
             isAtCenter = false;
+            super.onPause();
         }
 
         if(previous != isAtCenter && isAtCenter == true){
             counter += 1;
             Log.d("counter: ", String.valueOf(counter));
+
+            init = System.currentTimeMillis();
+            handler.post(updater);
+        } else if (previous != isAtCenter && isAtCenter == false){
+            Log.d("length: ", String.valueOf(time));
         }
 
         return isAtCenter;
     }
+
+    final Runnable updater = new Runnable() {
+        @Override
+        public void run() {
+            now = System.currentTimeMillis();
+            time = now - init;
+            Log.d("time: ", String.valueOf(time));
+            handler.postDelayed(this, 30);
+        }
+    };
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
