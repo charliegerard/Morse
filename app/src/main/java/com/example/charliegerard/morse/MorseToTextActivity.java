@@ -57,6 +57,10 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     long init,now,time,paused;
     Handler handler;
 
+    // Timer light off variables.
+    long initOff, timeOff, pausedOff;
+    Handler handlerOff;
+
 
     protected BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -95,6 +99,7 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         handler = new Handler();
+        handlerOff = new Handler();
     }
 
     @Override
@@ -288,8 +293,17 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
 
             init = System.currentTimeMillis();
             handler.post(updater);
+
         } else if (previous != isAtCenter && isAtCenter == false){
             Log.d("length: ", String.valueOf(time));
+            long lengthLight = time;
+
+            if(lengthLight >= 240 && lengthLight < (240 * 3)){
+                Log.d("symbol: ", "one dot unit");
+            }
+            if(lengthLight >= (240 * 3)){
+                Log.d("Symbol: ", "one dash unit");
+            }
         }
 
         return isAtCenter;
@@ -301,7 +315,15 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
             now = System.currentTimeMillis();
             time = now - init;
             Log.d("time: ", String.valueOf(time));
-            handler.postDelayed(this, 30);
+//            handler.postDelayed(this, 30);
+            handler.post(this);
+        }
+    };
+
+    final Runnable offTimer = new Runnable() {
+        @Override
+        public void run() {
+
         }
     };
 
