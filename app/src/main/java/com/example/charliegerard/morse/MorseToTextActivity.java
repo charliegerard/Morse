@@ -46,7 +46,9 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     int y = -1;
     double [] rgb;
     int counter = 0;
+    int previousCounter = -1;
     boolean previous = false;
+    boolean isAtCenter = false;
 
 
     protected BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -255,7 +257,6 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     };
 
     private boolean checkIfBlobAtCenter(Rect centerRect, Rect blobBoundary) {
-        boolean isAtCenter = false;
         previous = isAtCenter;
 
         if(blobBoundary.x > centerRect.x &&
@@ -264,17 +265,14 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
 
             isAtCenter = true;
 
-//            if(counter != previousCounter){
-//                counter += 1;
-//            }
-//            previousCounter = counter;
-
-            Log.d("center", String.valueOf(blobBoundary.area()));
+//            Log.d("center", String.valueOf(blobBoundary.area()));
+        } else {
+            isAtCenter = false;
         }
-        if(isAtCenter != previous && isAtCenter == true){
+
+        if(previous != isAtCenter && isAtCenter == true){
             counter += 1;
             Log.d("counter: ", String.valueOf(counter));
-            previous = isAtCenter;
         }
 
         return isAtCenter;
