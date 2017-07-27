@@ -2,6 +2,7 @@ package com.example.charliegerard.morse;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.constraint.solver.widgets.Rectangle;
 import android.support.v4.graphics.BitmapCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -44,7 +45,9 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     int x = -1;
     int y = -1;
     double [] rgb;
-    float averageBrightness = 0;
+    int counter = 0;
+    boolean previous = false;
+
 
     protected BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -186,11 +189,17 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                         maxValId = i;
                     }
                 }
+
                 Rect rect = new Rect();
                 rect.width = mRgba.width();
                 rect.height = mRgba.height();
+
+                // x, y, width, height;
+                Rect centerRect = new Rect(rect.width/4 * 1, rect.height/4 * 1, rect.width/4 * 2, rect.height/4 * 2);
+
                 // Rectangle at the center of the camera preview.
                 Imgproc.rectangle(mRgba, new Point(rect.width/4 * 1, rect.height/4 * 1), new Point(rect.width/4 * 3, rect.height/4 * 3), new Scalar(255,255,255), 5);
+
                 // Contour of the largest blob.
                 Imgproc.drawContours(mRgba, contours, maxValId, new Scalar(255,0,0,255), 5);
 
@@ -203,11 +212,30 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                     MatOfPoint points = new MatOfPoint(approxCurve.toArray());
                     Rect lightBoundary = Imgproc.boundingRect(points);
                     Imgproc.rectangle(mRgba, new Point(lightBoundary.x, lightBoundary.y), new Point(lightBoundary.x + lightBoundary.width, lightBoundary.y + lightBoundary.height), new Scalar(255,0,0,255), 3);
+
+                    checkIfBlobAtCenter(centerRect, lightBoundary);
                 }
 
                 //Original camera feed is rotated to appear correctly
                 //So drawing a circle can't only be x,y.
-                Imgproc.circle(mRgba, new Point(y, rect.width - x), 100, new Scalar(255,255,255), 5);
+//                Imgproc.circle(mRgba, new Point(y, rect.width - x), 50, new Scalar(255,255,255), 5);
+
+                //Drawing line instead of circle to try and get pixel brightness.
+                int horiLineX1 = y;
+                int horiLineY1 = 0;
+                int horiLineX2 = y;
+                int horiLineY2 = rect.height;
+
+                int vertLineX1 = 0;
+                int vertLineY1 = rect.width - x;
+                int vertLineX2 = rect.width;
+                int vertLineY2 = rect.width - x;
+                //Horizontal line.
+                Imgproc.line(mRgba, new Point(horiLineX1,horiLineY1), new Point(horiLineX2, horiLineY2), new Scalar(255,0,0), 3);
+                //Vertical line
+                Imgproc.line(mRgba, new Point(vertLineX1, vertLineY1), new Point(vertLineX2, vertLineY2), new Scalar(255,0,0), 3);
+
+//                Point intersection = calculateIntersectionPoint(horiLineX1, horiLineY1, horiLineX2, horiLineY2, vertLineX1, vertLineY1, vertLineX2, vertLineY2);
 
                 return mRgba;
             }
@@ -215,14 +243,40 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
         cameraPreview.setCvCameraViewListener(camListener);
     }
 
+    public Point calculateIntersectionPoint(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4) {
+        // equation found here: https://stackoverflow.com/questions/30072854/android-opencv-retrieve-intersection-point
+        int d = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
+        if (d == 0) return null;
+
+        int xi = ((x3-x4)*(x1*y2-y1*x2)-(x1-x2)*(x3*y4-y3*x4))/d;
+        int yi = ((y3-y4)*(x1*y2-y1*x2)-(y1-y2)*(x3*y4-y3*x4))/d;
+
+        return new Point(xi, yi);
+    };
+
     private boolean checkIfBlobAtCenter(Rect centerRect, Rect blobBoundary) {
         boolean isAtCenter = false;
+        previous = isAtCenter;
+
         if(blobBoundary.x > centerRect.x &&
                 blobBoundary.x + blobBoundary.width < centerRect.x + centerRect.width &&
                 blobBoundary.y > centerRect.y && blobBoundary.y + blobBoundary.height < centerRect.y + centerRect.height){
 
             isAtCenter = true;
+
+//            if(counter != previousCounter){
+//                counter += 1;
+//            }
+//            previousCounter = counter;
+
+            Log.d("center", String.valueOf(blobBoundary.area()));
         }
+        if(isAtCenter != previous && isAtCenter == true){
+            counter += 1;
+            Log.d("counter: ", String.valueOf(counter));
+            previous = isAtCenter;
+        }
+
         return isAtCenter;
     }
 
