@@ -54,11 +54,13 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     boolean isAtCenter = false;
 
     //Timer variables
-    long init,now,time,paused;
+    long init = 0;
+    long now,time,paused;
     Handler handler;
 
     // Timer light off variables.
-    long initOff, timeOff, pausedOff;
+    long initOff = 0;
+    long nowOff, timeOff, pausedOff;
     Handler handlerOff;
 
 
@@ -119,6 +121,7 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
             cameraPreview.disableView();
         }
         paused = System.currentTimeMillis();
+        pausedOff = System.currentTimeMillis();
     }
 
     @Override
@@ -133,7 +136,8 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
 
-        init += System.currentTimeMillis();
+        init += System.currentTimeMillis() - paused;
+        initOff += System.currentTimeMillis() - paused;
 
     }
 
@@ -281,30 +285,69 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 blobBoundary.y > centerRect.y && blobBoundary.y + blobBoundary.height < centerRect.y + centerRect.height){
 
             isAtCenter = true;
-//            Log.d("center", String.valueOf(blobBoundary.area()));
+
+            if(previous != isAtCenter){
+                if(init == 0){
+                    init = System.currentTimeMillis();
+                }
+                handler.post(updater);
+
+                Log.d("state: ", "on");
+            }
+
         } else {
             isAtCenter = false;
-            super.onPause();
+//            super.onPause();
+
+            if(previous != isAtCenter){
+                if(initOff == 0){
+                    initOff = System.currentTimeMillis();
+                }
+                handlerOff.post(offTimer);
+
+                Log.d("state: ", "off");
+            }
+
         }
 
-        if(previous != isAtCenter && isAtCenter == true){
-            counter += 1;
-            Log.d("counter: ", String.valueOf(counter));
-
-            init = System.currentTimeMillis();
-            handler.post(updater);
-
-        } else if (previous != isAtCenter && isAtCenter == false){
-            Log.d("length: ", String.valueOf(time));
-            long lengthLight = time;
-
-            if(lengthLight >= 240 && lengthLight < (240 * 3)){
-                Log.d("symbol: ", "one dot unit");
-            }
-            if(lengthLight >= (240 * 3)){
-                Log.d("Symbol: ", "one dash unit");
-            }
-        }
+//        if(previous != isAtCenter && isAtCenter == true){ // When light is detected
+//            counter += 1;
+//            Log.d("counter: ", String.valueOf(counter));
+//            Log.d("state: ", "on");
+//
+//            if(init == 0){
+//                init = System.currentTimeMillis();
+//
+//            }
+//            handler.post(updater);
+//
+//            long lengthLightOff = timeOff;
+//
+////            if(lengthLightOff >= 240 && lengthLightOff < (240 * 3)){
+////                Log.d("symbol: ", "gap in character");
+////            } else if (lengthLightOff >= (240*3) && lengthLightOff < (240 * 7)){
+////                Log.d("symbol: ", "gap between letters");
+////            } else if(lengthLightOff >= (240 * 7)){
+////                Log.d("symbol: ", "gap between words");
+////            }
+//
+//        } else if (previous != isAtCenter && isAtCenter == false){ // When pauses are detected
+////            Log.d("length: ", String.valueOf(time));
+//            long lengthLight = time;
+//            Log.d("state: ", "off");
+//
+////            if(lengthLight >= 240 && lengthLight < (240 * 3)){
+////                Log.d("symbol: ", "one dot unit");
+////            }
+////            if(lengthLight >= (240 * 3)){
+////                Log.d("Symbol: ", "one dash unit");
+////            }
+//
+//            if(initOff == 0){
+//                initOff = System.currentTimeMillis();
+//            }
+//            handlerOff.post(offTimer);
+//        }
 
         return isAtCenter;
     }
@@ -314,7 +357,7 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
         public void run() {
             now = System.currentTimeMillis();
             time = now - init;
-            Log.d("time: ", String.valueOf(time));
+//            Log.d("time: ", String.valueOf(time));
 //            handler.postDelayed(this, 30);
             handler.post(this);
         }
@@ -323,7 +366,9 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     final Runnable offTimer = new Runnable() {
         @Override
         public void run() {
-
+            nowOff = System.currentTimeMillis();
+            timeOff = nowOff - initOff;
+            handlerOff.post(this);
         }
     };
 
