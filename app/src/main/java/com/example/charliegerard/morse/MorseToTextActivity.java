@@ -30,8 +30,6 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.logging.Handler;
-import java.util.logging.LogRecord;
 
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
 import static org.opencv.imgproc.Imgproc.RETR_EXTERNAL;
@@ -48,8 +46,6 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     int x = -1;
     int y = -1;
     double [] rgb;
-    int counter = 0;
-    int previousCounter = -1;
     boolean previous = false;
     boolean isAtCenter = false;
 
@@ -239,43 +235,11 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                     checkIfBlobAtCenter(centerRect, lightBoundary);
                 }
 
-                //Original camera feed is rotated to appear correctly
-                //So drawing a circle can't only be x,y.
-//                Imgproc.circle(mRgba, new Point(y, rect.width - x), 50, new Scalar(255,255,255), 5);
-
-//                //Drawing line instead of circle to try and get pixel brightness.
-//                int horiLineX1 = y;
-//                int horiLineY1 = 0;
-//                int horiLineX2 = y;
-//                int horiLineY2 = rect.height;
-//
-//                int vertLineX1 = 0;
-//                int vertLineY1 = rect.width - x;
-//                int vertLineX2 = rect.width;
-//                int vertLineY2 = rect.width - x;
-//                //Horizontal line.
-//                Imgproc.line(mRgba, new Point(horiLineX1,horiLineY1), new Point(horiLineX2, horiLineY2), new Scalar(255,0,0), 3);
-//                //Vertical line
-//                Imgproc.line(mRgba, new Point(vertLineX1, vertLineY1), new Point(vertLineX2, vertLineY2), new Scalar(255,0,0), 3);
-
-//                Point intersection = calculateIntersectionPoint(horiLineX1, horiLineY1, horiLineX2, horiLineY2, vertLineX1, vertLineY1, vertLineX2, vertLineY2);
-
                 return mRgba;
             }
         };
         cameraPreview.setCvCameraViewListener(camListener);
     }
-
-//    public Point calculateIntersectionPoint(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4) {
-//        // equation found here: https://stackoverflow.com/questions/30072854/android-opencv-retrieve-intersection-point
-//        int d = (x1-x2)*(y3-y4) - (y1-y2)*(x3-x4);
-//        if (d == 0) return null;
-//
-//        int xi = ((x3-x4)*(x1*y2-y1*x2)-(x1-x2)*(x3*y4-y3*x4))/d;
-//        int yi = ((y3-y4)*(x1*y2-y1*x2)-(y1-y2)*(x3*y4-y3*x4))/d;
-//
-//        return new Point(xi, yi);
-//    };
 
     private boolean checkIfBlobAtCenter(Rect centerRect, Rect blobBoundary) {
         previous = isAtCenter;
@@ -325,7 +289,6 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 paused = System.currentTimeMillis();
 
                 // duration of light on before turning off ==> time
-                Log.d("length light on: ", String.valueOf(time));
                 if(time >= dotUnitDuration && time < dashUnitDuration){
                     Log.d("symbol: ", "one dot unit");
                 } else if(time >= dashUnitDuration){
@@ -333,45 +296,6 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 }
             }
         }
-
-//        if(previous != isAtCenter && isAtCenter == true){ // When light is detected
-//            counter += 1;
-//            Log.d("counter: ", String.valueOf(counter));
-//            Log.d("state: ", "on");
-//
-//            if(init == 0){
-//                init = System.currentTimeMillis();
-//
-//            }
-//            handler.post(updater);
-//
-//            long lengthLightOff = timeOff;
-//
-////            if(lengthLightOff >= 240 && lengthLightOff < (240 * 3)){
-////                Log.d("symbol: ", "gap in character");
-////            } else if (lengthLightOff >= (240*3) && lengthLightOff < (240 * 7)){
-////                Log.d("symbol: ", "gap between letters");
-////            } else if(lengthLightOff >= (240 * 7)){
-////                Log.d("symbol: ", "gap between words");
-////            }
-//
-//        } else if (previous != isAtCenter && isAtCenter == false){ // When pauses are detected
-////            Log.d("length: ", String.valueOf(time));
-//            long lengthLight = time;
-//            Log.d("state: ", "off");
-//
-////            if(lengthLight >= 240 && lengthLight < (240 * 3)){
-////                Log.d("symbol: ", "one dot unit");
-////            }
-////            if(lengthLight >= (240 * 3)){
-////                Log.d("Symbol: ", "one dash unit");
-////            }
-//
-//            if(initOff == 0){
-//                initOff = System.currentTimeMillis();
-//            }
-//            handlerOff.post(offTimer);
-//        }
 
         return isAtCenter;
     }
@@ -381,7 +305,6 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
         public void run() {
             now = System.currentTimeMillis();
             time = now - init;
-//            Log.d("time: ", String.valueOf(time));
 //            handler.postDelayed(this, 30);
             handler.post(this);
         }
@@ -395,23 +318,5 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
             handlerOff.post(this);
         }
     };
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        // TODO Auto-generated method stub
-
-        if(event.getAction() == MotionEvent.ACTION_DOWN) {
-
-            x = (int) event.getX();
-            y = (int) event.getY();
-
-        }
-//        if(rgb != null){
-
-//            Log.d("Color: Red", String.valueOf(rgb[0]) + " Green: " + String.valueOf(rgb[1]) + " Blue: " + String.valueOf(rgb[2]));
-//        }
-
-        return super.onTouchEvent(event);
-    }
 }
 
