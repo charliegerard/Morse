@@ -63,6 +63,12 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     long nowOff, timeOff, pausedOff;
     Handler handlerOff;
 
+    private int oneTimeUnit = 240;
+    private int dotUnitDuration = oneTimeUnit;
+    private int dashUnitDuration = oneTimeUnit * 3;
+    private int gapInCharacter = oneTimeUnit;
+    private int gapBetweenLetters = oneTimeUnit * 3;
+    private int gapBetweenWords = oneTimeUnit * 7;
 
     protected BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -117,11 +123,10 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     protected void onPause() {
         // TODO Auto-generated method stub
         super.onPause();
+
         if(cameraPreview != null){
             cameraPreview.disableView();
         }
-        paused = System.currentTimeMillis();
-        pausedOff = System.currentTimeMillis();
     }
 
     @Override
@@ -135,10 +140,6 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
             Log.d(TAG, "OpenCV library found inside package. Loading it");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
-
-        init += System.currentTimeMillis() - paused;
-        initOff += System.currentTimeMillis() - paused;
-
     }
 
     @Override
@@ -151,7 +152,6 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     public void onCameraViewStopped() {
         // TODO Auto-generated method stub
         mRgba.release();
-
     }
 
     @Override
@@ -287,27 +287,51 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
             isAtCenter = true;
 
             if(previous != isAtCenter){
+
                 if(init == 0){
                     init = System.currentTimeMillis();
+                } else {
+                    init += System.currentTimeMillis() - pausedOff;
                 }
                 handler.post(updater);
 
-                Log.d("state: ", "on");
+                Log.d("length light off: ", String.valueOf(timeOff));
+
+                // Pause the counter of NO light.
+                pausedOff = System.currentTimeMillis();
+
+                if(timeOff >= gapInCharacter && timeOff < gapBetweenLetters){
+                    Log.d("symbol: ", "gap in character");
+                } else if(timeOff >= gapBetweenLetters && timeOff < gapBetweenWords){
+                    Log.d("symbol: ", "gap between letters");
+                } else if(timeOff >= gapBetweenWords){
+                    Log.d("symbol: ", "gap between words");
+                }
             }
 
-        } else {
+        } else { // Light off.
+
             isAtCenter = false;
-//            super.onPause();
 
             if(previous != isAtCenter){
                 if(initOff == 0){
                     initOff = System.currentTimeMillis();
+                } else {
+                    initOff += System.currentTimeMillis() - paused;
                 }
                 handlerOff.post(offTimer);
 
-                Log.d("state: ", "off");
-            }
+                // Pause the counter of the ON light.
+                paused = System.currentTimeMillis();
 
+                // duration of light on before turning off ==> time
+                Log.d("length light on: ", String.valueOf(time));
+                if(time >= dotUnitDuration && time < dashUnitDuration){
+                    Log.d("symbol: ", "one dot unit");
+                } else if(time >= dashUnitDuration){
+                    Log.d("symbol: ", "dash unit");
+                }
+            }
         }
 
 //        if(previous != isAtCenter && isAtCenter == true){ // When light is detected
