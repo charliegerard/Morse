@@ -273,6 +273,8 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
 
                     morseMessage += word + " ";
                     word = "";
+
+                    Log.d("message: ", morseMessage);
                 }
             }
 
