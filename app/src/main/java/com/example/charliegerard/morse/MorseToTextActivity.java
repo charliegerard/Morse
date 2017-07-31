@@ -1,9 +1,5 @@
 package com.example.charliegerard.morse;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.support.constraint.solver.widgets.Rectangle;
-import android.support.v4.graphics.BitmapCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -43,9 +39,6 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     protected CameraBridgeViewBase cameraPreview;
     protected Mat mRgba;
     public CameraBridgeViewBase.CvCameraViewListener2 camListener;
-    int x = -1;
-    int y = -1;
-    double [] rgb;
     boolean previous = false;
     boolean isAtCenter = false;
 
@@ -65,6 +58,11 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     private int gapInCharacter = oneTimeUnit;
     private int gapBetweenLetters = oneTimeUnit * 3;
     private int gapBetweenWords = oneTimeUnit * 7;
+
+    String morseMessage = "";
+    String character = "";
+//    String letter = "";
+    String word = "";
 
     protected BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -179,9 +177,6 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
             @Override
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
                 mRgba = inputFrame.rgba();
-                if(x != -1 && y != -1){
-                    rgb = mRgba.get(x,y); //get RGB values for the touch event.
-                }
 
                 Mat gray = new Mat();
                 Mat bwImg = new Mat();
@@ -259,17 +254,25 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 }
                 handler.post(updater);
 
-                Log.d("length light off: ", String.valueOf(timeOff));
-
                 // Pause the counter of NO light.
                 pausedOff = System.currentTimeMillis();
 
                 if(timeOff >= gapInCharacter && timeOff < gapBetweenLetters){
                     Log.d("symbol: ", "gap in character");
+                    character = " ";
                 } else if(timeOff >= gapBetweenLetters && timeOff < gapBetweenWords){
                     Log.d("symbol: ", "gap between letters");
+
+                    // Map symbols to real letter;
+                    word += character;
+                    // Reset character for new one;
+                    character = "";
+
                 } else if(timeOff >= gapBetweenWords){
                     Log.d("symbol: ", "gap between words");
+
+                    morseMessage += word + " ";
+                    word = "";
                 }
             }
 
@@ -291,8 +294,10 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 // duration of light on before turning off ==> time
                 if(time >= dotUnitDuration && time < dashUnitDuration){
                     Log.d("symbol: ", "one dot unit");
+                    character += ".";
                 } else if(time >= dashUnitDuration){
                     Log.d("symbol: ", "dash unit");
+                    character += "-";
                 }
             }
         }
