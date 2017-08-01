@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.os.Handler;
+import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -23,6 +24,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,6 +69,8 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
     String word = "";
 
     HashMap<String, String> morseMap = new HashMap<String, String>();
+
+    TextView text;
 
     public void setupMorseMap(){
         morseMap.put("a", ". -");
@@ -123,6 +127,8 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_morse_to_text);
+
+        text = (TextView) findViewById(R.id.text_view);
 
         cameraPreview = (CameraBridgeViewBase) findViewById(R.id.sample_test_camera_view);
 
@@ -287,35 +293,38 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 } else {
                     init += System.currentTimeMillis() - pausedOff;
                 }
+
                 handler.post(updater);
 
                 // Pause the counter of NO light.
                 pausedOff = System.currentTimeMillis();
 
-                Log.d("off: ", String.valueOf(timeOff));
-
-                if(timeOff <= gapInCharacter){
+                if(timeOff <= (gapInCharacter * 2) && timeOff > 0){
                     Log.d("symbol: ", "gap in character");
                     character += " ";
-                } else if(timeOff >= gapBetweenLetters && timeOff < gapBetweenWords){
-                    Log.d("symbol: ", "gap between letters");
 
-                    for(Map.Entry map : morseMap.entrySet()){
-                        if(map.getValue().equals(character)){
+                } else if(timeOff > (gapInCharacter * 2) && timeOff >= gapBetweenLetters && timeOff < gapBetweenWords){
+
+                    for(Map.Entry map : morseMap.entrySet()) {
+                        if (character.equals(map.getValue())) {
                             word += map.getKey();
                         }
                     }
-
                     // Reset character for new one;
                     character = "";
 
                 } else if(timeOff >= gapBetweenWords){
 //                    Log.d("symbol: ", "gap between words");
-
                     morseMessage += word + " ";
                     word = "";
                 }
 
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        appendText(word);
+                    }
+                });
             }
 
         } else { // Light off.
@@ -336,15 +345,18 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 // duration of light on before turning off ==> time
                 if(time <= dotUnitDuration){
                     character += ".";
-                } else if(time > dotUnitDuration ){
+                } else if(time > dotUnitDuration * 2 ){
                     character += "-";
                 }
 
-                Log.d("hello", character);
             }
         }
 
         return isAtCenter;
+    }
+
+    private void appendText(String word) {
+        text.setText(word);
     }
 
     final Runnable updater = new Runnable() {
