@@ -25,7 +25,9 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.opencv.imgproc.Imgproc.CHAIN_APPROX_SIMPLE;
 import static org.opencv.imgproc.Imgproc.RETR_EXTERNAL;
@@ -64,6 +66,37 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
 //    String letter = "";
     String word = "";
 
+    HashMap<String, String> morseMap = new HashMap<String, String>();
+
+    public void setupMorseMap(){
+        morseMap.put("a", ". -");
+        morseMap.put("b", "- . . .");
+        morseMap.put("c", "- . - .");
+        morseMap.put("d", "- . .");
+        morseMap.put("e", ".");
+        morseMap.put("f", ". . - .");
+        morseMap.put("g", "- - .");
+        morseMap.put("h", ". . . .");
+        morseMap.put("i", ". .");
+        morseMap.put("j", ". - - -");
+        morseMap.put("k", "- . -");
+        morseMap.put("l", ". - . .");
+        morseMap.put("m", "- -");
+        morseMap.put("n", "- .");
+        morseMap.put("o", "- - -");
+        morseMap.put("p", ". - - .");
+        morseMap.put("q", "- - . -");
+        morseMap.put("r", ". - .");
+        morseMap.put("s", ". . .");
+        morseMap.put("t", "-");
+        morseMap.put("u", ". . -");
+        morseMap.put("v", ". . . -");
+        morseMap.put("w", ". - -");
+        morseMap.put("x", "- . . -");
+        morseMap.put("y", "- . - -");
+        morseMap.put("z", "- - . .");
+    }
+
     protected BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -99,6 +132,8 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
         setSupportActionBar(myToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        setupMorseMap();
 
         handler = new Handler();
         handlerOff = new Handler();
@@ -257,25 +292,30 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 // Pause the counter of NO light.
                 pausedOff = System.currentTimeMillis();
 
-                if(timeOff >= gapInCharacter && timeOff < gapBetweenLetters){
+                Log.d("off: ", String.valueOf(timeOff));
+
+                if(timeOff <= gapInCharacter){
                     Log.d("symbol: ", "gap in character");
-                    character = " ";
+                    character += " ";
                 } else if(timeOff >= gapBetweenLetters && timeOff < gapBetweenWords){
                     Log.d("symbol: ", "gap between letters");
 
-                    // Map symbols to real letter;
-                    word += character;
+                    for(Map.Entry map : morseMap.entrySet()){
+                        if(map.getValue().equals(character)){
+                            word += map.getKey();
+                        }
+                    }
+
                     // Reset character for new one;
                     character = "";
 
                 } else if(timeOff >= gapBetweenWords){
-                    Log.d("symbol: ", "gap between words");
+//                    Log.d("symbol: ", "gap between words");
 
                     morseMessage += word + " ";
                     word = "";
-
-                    Log.d("message: ", morseMessage);
                 }
+
             }
 
         } else { // Light off.
@@ -294,13 +334,13 @@ public class MorseToTextActivity extends AppCompatActivity implements CameraBrid
                 paused = System.currentTimeMillis();
 
                 // duration of light on before turning off ==> time
-                if(time >= dotUnitDuration && time < dashUnitDuration){
-                    Log.d("symbol: ", "one dot unit");
+                if(time <= dotUnitDuration){
                     character += ".";
-                } else if(time >= dashUnitDuration){
-                    Log.d("symbol: ", "dash unit");
+                } else if(time > dotUnitDuration ){
                     character += "-";
                 }
+
+                Log.d("hello", character);
             }
         }
 
